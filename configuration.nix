@@ -207,6 +207,10 @@
     ibus-theme-tools
     anydesk
     gnome.adwaita-icon-theme
+    netease-cloud-music-gtk
+    authy
+    enpass
+    bitwarden
   ] ++ (with gnomeExtensions; [
     appindicator
     system-monitor
