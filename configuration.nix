@@ -25,6 +25,15 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  
+  # VirtualBox
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "user-with-access-to-virtualbox" ];
+
+  # virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host.enableExtensionPack = true;
+  #virtualisation.virtualbox.guest.enable = true;
+  #virtualisation.virtualbox.guest.x11 = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Shanghai";
@@ -182,7 +191,11 @@
     wget
     gnumake
     gcc
+    cmake
+    unzip
+    git
     gthumb
+    docker
     notejot
     lollypop
     gnome.gnome-tweaks
@@ -193,6 +206,9 @@
     python39
     nodejs-18_x
     jetbrains.webstorm
+    android-studio
+    qt6.full
+    qtcreator
     yarn
     yarn2nix
     adoptopenjdk-bin
