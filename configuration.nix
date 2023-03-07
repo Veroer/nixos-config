@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./home.nix
     ];
 
   # Bootloader.
@@ -15,6 +16,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot/efi";
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  environment.pathsToLink = [ "/libexec" ];
 
   networking.hostName = "mianNixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -25,6 +28,16 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  systemd.services.NetworkManager-wait-online.enable = false;
+
+  # Docker
+  virtualisation.docker.enable = true;
+  # users.users.mian.extraGroups = ["docker"];
+  # Rootless docker
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
+  };
   
   # VirtualBox
   virtualisation.virtualbox.host.enable = true;
@@ -87,19 +100,19 @@
   fonts.fontconfig.enable = true;
 
   i18n.inputMethod = {
-    # enabled = "fcitx5";
-    # fcitx5.enableRimeData= true;
-    # fcitx5.addons = with pkgs; [
-    #   fcitx5-rime
-    #   fcitx5-chinese-addons
-    # ];
-
-    # 我现在用 ibus
-    enabled = "ibus";
-    ibus.engines = with pkgs.ibus-engines; [
-      libpinyin
-      rime
+    enabled = "fcitx5";
+    fcitx5.enableRimeData= true;
+    fcitx5.addons = with pkgs; [
+      fcitx5-rime
+      fcitx5-chinese-addons
     ];
+
+    
+    #enabled = "ibus";
+    #ibus.engines = with pkgs.ibus-engines; [
+    #  libpinyin
+    #  rime
+    # ];
   };
 
   i18n.extraLocaleSettings = {
@@ -115,20 +128,57 @@
   };
 
   # Nix binary
-  nix.settings.substituters = [ "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store" ];
+  nix.settings.substituters = [ "https://mirrors.ustc.edu.cn/nix-channels/store" ];
 
   services.meshcentral.enable = true;
+  services.onedrive.enable = true;
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.xserver.autorun = true;
+  # services.xserver.enable = true;
+  #services.xserver.autorun = true;
+
+  services.xserver = {
+    enable = true;   
+    desktopManager = {
+      xterm.enable = false;
+      xfce = {
+        enable = true;
+        noDesktop = true;
+        enableXfwm = false;
+      };
+    };
+    displayManager.defaultSession = "none+i3";
+    windowManager.i3 = {
+      enable = true;
+      #package = pkgs.i3-gaps;
+      extraPackages = with pkgs; [
+        dmenu #application launcher most people use
+        i3status # gives you the default i3 status bar
+        i3lock #default i3 screen locker
+        i3blocks #if you are planning on using i3blocks over i3status
+     ];
+    };
+  };
 
   # Enable the GNOME Desktop Environment.
-  # services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  services.xserver.displayManager.defaultSession = "gnome";
-  services.xserver.displayManager.sddm.enable = true;
+  #services.xserver.displayManager.gdm.enable = true;
+  #services.xserver.desktopManager.xterm.enable = false;
+  #services.xserver.desktopManager.gnome.enable = true;
+  #services.xserver.displayManager.defaultSession = "gnome";
+  #services.xserver.displayManager.defaultSession = "none+i3";
+  #services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
   programs.ssh.askPassword = pkgs.lib.mkForce "${pkgs.ksshaskpass.out}/bin/ksshaskpass";
+
+  #services.xserver.windowManager.i3 = {
+  #  enable = true;
+  #  package = pkgs.i3-gaps;
+  #  extraPackages = with pkgs; [
+  #    dmenu #application launcher most people use
+  #    i3status # gives you the default i3 status bar
+  #    i3lock #default i3 screen locker
+  #    i3blocks #if you are planning on using i3blocks over i3status
+  # ];
+  #};
 
   services.xrdp.enable = true;
   services.xrdp.defaultWindowManager = "startplasma-x11";
@@ -162,31 +212,39 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
-
+  
+     
+ 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.defaultUserShell = pkgs.zsh;
+  # users.users.yourname.shell = pkgs.zsh;
   users.users.mian = {
-    isNormalUser = true;
+    #isNormalUser = true;
     description = "Mian-PAT";
-    extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
       firefox
     #  thunderbird
     ];
   };
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "google-chrome"
-  ];
-
+ 
+  #home-manager.users.mian = { pkgs, ... }: {
+  #  home.packages = [ pkgs.atool pkgs.httpie ];
+  #  programs.bash.enable = true;
+  #};
 
   nixpkgs.config.permittedInsecurePackages = [
     "xrdp-0.9.9"
   ];
+ 
+  environment.shells = with pkgs; [ zsh ];
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    zsh
+    oh-my-zsh
+    home-manager
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     gnumake
@@ -194,10 +252,20 @@
     cmake
     unzip
     git
+    xorg.mkfontdir
     gthumb
     docker
     notejot
     lollypop
+    onedrive
+    #---- i3
+    conky
+    #i3-gaps
+    #i3
+    #i3status
+    #dmenu
+    lxappearance
+    #---- gnome  
     gnome.gnome-tweaks
     gnome.dconf-editor
     gnome.gnome-power-manager
@@ -205,6 +273,11 @@
     python2
     python39
     nodejs-18_x
+    # IDE
+    jetbrains.goland
+    jetbrains.clion
+    jetbrains.ruby-mine
+    jetbrains.pycharm-community
     jetbrains.webstorm
     android-studio
     qt6.full
@@ -218,15 +291,32 @@
     dbeaver
     mattermost-desktop
     synergy
-    # stretchly
+    stretchly
     google-chrome
     ibus-theme-tools
     anydesk
     gnome.adwaita-icon-theme
+    gnome3.adwaita-icon-theme
     netease-cloud-music-gtk
     authy
     enpass
     bitwarden
+    wpsoffice
+    obsidian
+    rustdesk
+    # Games
+    lutris
+    (lutris.override {
+      extraLibraries =  pkgs: [
+        # List library dependencies here
+      ];
+    })
+    (lutris.override {
+       extraPkgs = pkgs: [
+         # List package dependencies here
+       ];
+    })
+    # minecraft
   ] ++ (with gnomeExtensions; [
     appindicator
     system-monitor
@@ -251,6 +341,15 @@
   #  enable = true;
   #  package = pkgs.gnomeExtensions.gsconnect;
   # };
+  programs.dconf.enable = true;
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "enpass"
+    "vscode"
+    "google=chrome"
+    "goland"
+    "obsidian"
+  ];
 
   # List services that you want to enable:
 
