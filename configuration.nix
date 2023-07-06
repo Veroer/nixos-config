@@ -8,9 +8,10 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./home.nix
+      <home-manager/nixos>
+      #./home.nix
+      ./unstable.nix
     ];
-
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -40,11 +41,11 @@
   };
   
   # VirtualBox
-  virtualisation.virtualbox.host.enable = true;
-  users.extraGroups.vboxusers.members = [ "user-with-access-to-virtualbox" ];
+  #virtualisation.virtualbox.host.enable = true;
+  #users.extraGroups.vboxusers.members = [ "user-with-access-to-virtualbox" ];
 
   # virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.host.enableExtensionPack = true;
+  #virtualisation.virtualbox.host.enableExtensionPack = true;
   #virtualisation.virtualbox.guest.enable = true;
   #virtualisation.virtualbox.guest.x11 = true;
 
@@ -101,7 +102,7 @@
 
   i18n.inputMethod = {
     enabled = "fcitx5";
-    fcitx5.enableRimeData= true;
+    #fcitx5.enableRimeData= true;
     fcitx5.addons = with pkgs; [
       fcitx5-rime
       fcitx5-chinese-addons
@@ -151,7 +152,8 @@
       enable = true;
       #package = pkgs.i3-gaps;
       extraPackages = with pkgs; [
-        dmenu #application launcher most people use
+        #dmenu #application launcher most people use
+        rofi
         i3status # gives you the default i3 status bar
         i3lock #default i3 screen locker
         i3blocks #if you are planning on using i3blocks over i3status
@@ -182,7 +184,33 @@
 
   services.xrdp.enable = true;
   services.xrdp.defaultWindowManager = "startplasma-x11";
-  networking.firewall.allowedTCPPorts = [ 3389 ];
+  networking.firewall.allowedUDPPortRanges = [
+    {
+      from = 32768;
+      to = 65535;
+    }
+  ];
+  networking.firewall.allowedUDPPorts = [
+    80
+    443
+    3389
+    6568
+    21118
+    24800
+  ];
+  networking.firewall.allowedTCPPortRanges = [
+    {
+      from = 32768;
+      to = 65535;
+    }
+  ];
+  networking.firewall.allowedTCPPorts = [ 
+    80
+    443
+    3389
+    21118
+    24800    
+  ];
 
   # Configure keymap in X11
   services.xserver = {
@@ -213,30 +241,54 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
   
-     
+#  programs.zsh = {
+#    enable = true;
+#    shellAliases = {
+#      ll = "ls -l";
+#      update = "sudo nixos-rebuild switch";
+#    };
+#  };    
  
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.defaultUserShell = pkgs.zsh;
   # users.users.yourname.shell = pkgs.zsh;
   users.users.mian = {
-    #isNormalUser = true;
+    isNormalUser = true;
     description = "Mian-PAT";
     shell = pkgs.zsh;
     extraGroups = [ "networkmanager" "wheel" "docker" ];
-    packages = with pkgs; [
-      firefox
-    #  thunderbird
-    ];
   };
- 
-  #home-manager.users.mian = { pkgs, ... }: {
-  #  home.packages = [ pkgs.atool pkgs.httpie ];
-  #  programs.bash.enable = true;
-  #};
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "xrdp-0.9.9"
-  ];
+  home-manager.users.mian = { pkgs, ... }: {
+    home.packages = with pkgs; [
+      google-chrome
+    ];
+    programs.git = {
+      enable = true;
+      userName  = "mian | mian";
+      userEmail = "fangyoy1995+github@gmail.com";
+    };
+    programs.zsh = {
+      enable = true;
+      enableCompletion = true;
+      enableAutosuggestions = true;
+      sessionVariables = {
+        EDITOR = "vim";
+      };
+      shellAliases = {
+        update = "sudo nixos-rebuild switch";
+        lock = "i3lock -i '/home/mian/lockimgs/lol-1.png'";
+      };
+      oh-my-zsh = {
+        enable = true;
+        plugins = [ "git" "dotenv" "kubectl" "history" "docker" ];
+        theme = "robbyrussell";
+      };
+    };
+    nixpkgs.config.allowUnfree = true;
+    home.stateVersion = "22.11";
+    #program.home-manager.enable = true;
+  };
  
   environment.shells = with pkgs; [ zsh ];
   # List packages installed in system profile. To search, run:
@@ -244,91 +296,36 @@
   environment.systemPackages = with pkgs; [
     zsh
     oh-my-zsh
+    glibc
+    gcc12
     home-manager
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    wget
-    gnumake
-    gcc
-    cmake
-    unzip
     git
-    xorg.mkfontdir
-    gthumb
-    docker
-    notejot
-    lollypop
     onedrive
     #---- i3
     conky
-    #i3-gaps
-    #i3
-    #i3status
+    i3-gaps
+    i3
+    i3status
     #dmenu
+    rofi
     lxappearance
-    #---- gnome  
-    gnome.gnome-tweaks
-    gnome.dconf-editor
-    gnome.gnome-power-manager
-    gnome.gnome-sound-recorder
-    python2
-    python39
-    nodejs-18_x
-    # IDE
-    jetbrains.goland
-    jetbrains.clion
-    jetbrains.ruby-mine
-    jetbrains.pycharm-community
-    jetbrains.webstorm
-    android-studio
-    qt6.full
-    qtcreator
+    #nodejs-18_x
+    nodejs-16_x
+    google-chrome
     yarn
     yarn2nix
     adoptopenjdk-bin
-    jetbrains.idea-community
-    jetbrains.pycharm-community
-    vscode
-    dbeaver
     mattermost-desktop
-    synergy
-    stretchly
-    google-chrome
     ibus-theme-tools
     anydesk
-    gnome.adwaita-icon-theme
-    gnome3.adwaita-icon-theme
     netease-cloud-music-gtk
     authy
     enpass
-    bitwarden
     wpsoffice
     obsidian
     rustdesk
-    # Games
-    lutris
-    (lutris.override {
-      extraLibraries =  pkgs: [
-        # List library dependencies here
-      ];
-    })
-    (lutris.override {
-       extraPkgs = pkgs: [
-         # List package dependencies here
-       ];
-    })
-    # minecraft
-  ] ++ (with gnomeExtensions; [
-    appindicator
-    system-monitor
-    dash-to-dock
-    night-theme-switcher
-    proxy-switcher
-    clipboard-history
-    espresso
-    ddterm
-    customize-ibus
-    topicons-plus
-  ]);
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -342,14 +339,6 @@
   #  package = pkgs.gnomeExtensions.gsconnect;
   # };
   programs.dconf.enable = true;
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "enpass"
-    "vscode"
-    "google=chrome"
-    "goland"
-    "obsidian"
-  ];
 
   # List services that you want to enable:
 

@@ -2,7 +2,7 @@
 nixos-config
 
 ### i3 config
-`cp config ~/WebstormProjects/nixos-config/i3`
+`cp ~/.config/i3/* ~/WebstormProjects/nixos-config/i3`
 
 ### NixOS config
 `cp /etc/nixos/*  ~/WebstormProjects/nixos-config/`

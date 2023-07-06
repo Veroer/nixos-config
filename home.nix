@@ -11,29 +11,9 @@ in
   home-manager.users.mian = { config, pkgs, ...}: {
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.stateVersion = "22.11";
-    programs.bash.enable = true;
-    home.packages = with pkgs;
-    [
-      jetbrains.idea-community
-      jetbrains.pycharm-community
-      python310
-      go
-      clash
-      vscode
-      dbeaver
-      albert
-      copyq
-      enpass
-      kubectl
-      mattermost-desktop
-      silver-searcher
-      mongodb-compass
-      # qtcreator
-      synergy
-      stretchly
-    ];
-   # program.home-manager.enable = true;
-   # programs.dconf.enable = true;
+    # programs.zsh.enable = true;
+    # program.home-manager.enable = true;
+    # programs.dconf.enable = true;
     programs.vim = {
       enable = true;
       plugins = with pkgs.vimPlugins; [ dracula-vim ];
@@ -62,7 +42,7 @@ in
         EDITOR = "vim";
       };
       shellAliases = {
-        os-rebuild = "sudo nixos-rebuild switch";
+        update = "sudo nixos-rebuild switch";
         lock = "i3lock -i '/home/mian/lockimgs/lol-1.png'";
       };
       oh-my-zsh = {
@@ -72,13 +52,5 @@ in
       };
     };
     nixpkgs.config.allowUnfree = true;
-    nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-      "enpass"
-      "vscode"
-      "google-chrome"
-      "mongodb-compass"
-      "goland"
-      "clion" "ruby-mine" "webstorm"
-    ];
   };
 }
