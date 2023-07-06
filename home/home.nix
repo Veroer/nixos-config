@@ -22,22 +22,24 @@
   home.packages = with pkgs;
   [
     jetbrains.idea-community
-    jetbrains.pycharm-community
-    python310
-    go
-    clash
-    vscode
-    dbeaver
-    albert
-    copyq
-    enpass
-    kubectl
-    mattermost-desktop
-    silver-searcher
-    mongodb-compass
-    # qtcreator
-    synergy
-    stretchly
+    #jetbrains.pycharm-community
+    #python310
+    #go
+    #clash
+    #vscode
+    #dbeaver
+    #albert
+    #copyq
+    #enpass
+    #kubectl
+    #mattermost-desktop
+    #silver-searcher
+    #mongodb-compass
+    #qtcreator
+    #synergy
+    #stretchly
+    gcc12
+    glibc
  ];
  programs.git = {
     enable = true;
