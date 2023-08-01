@@ -20,6 +20,10 @@ nixos-config
 
 ### NixOS config
 `cp /etc/nixos/*  ~/WebstormProjects/nixos-config/`
+`cp /etc/nixos/*  ~/WebstormProjects/nixos-config/nixos/`
 
 ### Home Manager config ~/.config/nixpkgs/home.nix
 `cp ~/.config/nixpkgs/*  ~/WebstormProjects/nixos-config/home/`
+
+### User `.config`
+`cp ~/.config/*  ~/WebstormProjects/nixos-config/config/`
