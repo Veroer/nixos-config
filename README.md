@@ -27,3 +27,7 @@ nixos-config
 
 ### User `.config`
 `cp ~/.config/*  ~/WebstormProjects/nixos-config/config/`
+
+
+### Minimal Startup
+`cp /etc/nixos/*  ~/WebstormProjects/nixos-config/nixos/`
